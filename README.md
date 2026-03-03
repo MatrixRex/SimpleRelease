@@ -1,4 +1,4 @@
-# @your-username/release-tool
+# @matrix-rex/release-tool
 
 A simplified release wizard designed for Node.js projects using `pnpm`.
 
@@ -19,7 +19,7 @@ To test this tool locally in any project, you can use `pnpm link`.
 
 2.  **In the target project where you want to use the tool:**
     ```bash
-    pnpm link --global @your-username/release-tool
+    pnpm link --global @matrix-rex/release-tool
     ```
 
 3.  **Run the release wizard:**
@@ -32,7 +32,7 @@ To test this tool locally in any project, you can use `pnpm link`.
 In any project with a `package.json` and Git repository, simply run:
 
 ```bash
-npx @your-username/release-tool
+npx @matrix-rex/release-tool
 ```
 
 or if installed globally:

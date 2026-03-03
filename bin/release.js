@@ -39,13 +39,10 @@ async function run() {
   let latestTag = 'None';
   
   try {
-    const { stdout } = await execa('git', ['describe', '--tags', '--abbrev=0'], { 
-      cwd,
-      reject: false 
-    });
+    const { stdout } = await execa('git', ['describe', '--tags', '--abbrev=0'], { cwd });
     latestTag = stdout.trim() || 'None';
   } catch (e) {
-    // No tags found yet
+    // No tags found yet, latestTag stays 'None'
   }
 
   const tagVersion = latestTag.replace(/^v/, '');
@@ -124,10 +121,10 @@ async function run() {
   // 7. Run pnpm version
   try {
     const args = ['version', releaseType];
-    if (customMsg) {
-      args.push('-m', customMsg);
-    }
-    
+    // Always include v%s so the git commit message and tag stay in sync with package.json
+    const msgBase = customMsg ? customMsg.trim() : `${releaseType} release`;
+    args.push('-m', `${msgBase} v%s`);
+
     const { stdout: newVersion } = await execa('pnpm', args, { cwd });
     console.log(pc.green(`New Version: ${newVersion.trim()}`));
 

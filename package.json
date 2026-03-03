@@ -1,5 +1,5 @@
 {
-  "name": "@your-username/release-tool",
+  "name": "@matrix-rex/release-tool",
   "version": "1.0.0",
   "type": "module",
   "description": "Simplified release wizard for Node.js projects",
@@ -15,7 +15,7 @@
     "wizard",
     "pnpm"
   ],
-  "author": "",
+  "author": "Matrix Rex",
   "license": "MIT",
   "packageManager": "pnpm@10.24.0",
   "dependencies": {

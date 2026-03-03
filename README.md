@@ -10,22 +10,14 @@ A simplified release wizard designed for Node.js projects using `pnpm`.
 
 ## Local Development & Testing
 
-To test this tool locally in any project, you can use `pnpm link`.
+To register the tool globally on your machine, run once from this directory:
 
-1.  **In the `release-tool` directory (where this file is):**
-    ```bash
-    pnpm link --global
-    ```
+```bash
+npm link
+```
 
-2.  **In the target project where you want to use the tool:**
-    ```bash
-    pnpm link --global @matrix-rex/release-tool
-    ```
-
-3.  **Run the release wizard:**
-    ```bash
-    release-wizard
-    ```
+That's it — no second command needed in target projects. The `release-wizard` command
+will be available globally, and any edits to `bin/release.js` are reflected immediately.
 
 ## Usage
 

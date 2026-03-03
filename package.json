@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Simplified release wizard for Node.js projects",
+  "files": [
+    "bin/",
+    "README.md"
+  ],
   "bin": {
     "release-wizard": "./bin/release.js"
   },

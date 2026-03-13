@@ -21,17 +21,44 @@
 
 ## Installation
 
-### Global (recommended)
+### Global
+
+You can install it globally to use it in any project:
 
 ```bash
+# Using pnpm (recommended)
 pnpm add -g @matrix-rex/release-tool
+
+# Using npm
+npm install -g @matrix-rex/release-tool
+
+# Using yarn
+yarn global add @matrix-rex/release-tool
 ```
 
-### Or run without installing
+### Run without installing
 
 ```bash
 npx @matrix-rex/release-tool
 ```
+
+### Local Dev Dependency
+
+If you want to keep the version locked to a specific project:
+
+```bash
+pnpm add -D @matrix-rex/release-tool
+```
+
+Then add it to your `package.json` scripts:
+
+```json
+"scripts": {
+  "release": "release-it"
+}
+```
+
+Now you can run it via `pnpm release`.
 
 ---
 

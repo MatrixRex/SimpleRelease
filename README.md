@@ -42,6 +42,7 @@ Navigate to any Node.js project folder and run:
 ```bash
 release-it
 ```
+
 The wizard will guide you through:
 
 ```

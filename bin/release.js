@@ -10,7 +10,7 @@ async function run() {
   const cwd = process.cwd();
   const pkgPath = join(cwd, 'package.json');
 
-  console.log(pc.cyan('--- Release Wizard ---'));
+  console.log(pc.cyan('--- Release It ---'));
 
   // 1. Check if there are uncommitted changes
   try {

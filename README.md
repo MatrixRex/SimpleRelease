@@ -40,13 +40,12 @@ npx @matrix-rex/release-tool
 Navigate to any Node.js project folder and run:
 
 ```bash
-release-wizard
+release-it
 ```
-
 The wizard will guide you through:
 
 ```
---- Release Wizard ---
+--- Release It ---
 Current Package Version: v1.2.3
 Latest Git Tag:          v1.2.3
 
@@ -90,17 +89,17 @@ cd release-tool
 npm link
 ```
 
-The `release-wizard` command will now point to your local clone. Any edits to `bin/release.js` are reflected instantly.
+The `release-it` command will now point to your local clone. Any edits to `bin/release.js` are reflected instantly.
 
 ---
 
 ## Built With
 
-| Package | Purpose |
-|---|---|
-| [enquirer](https://www.npmjs.com/package/enquirer) | Interactive prompts |
-| [picocolors](https://www.npmjs.com/package/picocolors) | Terminal colors |
-| [execa](https://www.npmjs.com/package/execa) | Running git/pnpm commands |
+| Package                                                | Purpose                   |
+| ------------------------------------------------------ | ------------------------- |
+| [enquirer](https://www.npmjs.com/package/enquirer)     | Interactive prompts       |
+| [picocolors](https://www.npmjs.com/package/picocolors) | Terminal colors           |
+| [execa](https://www.npmjs.com/package/execa)           | Running git/pnpm commands |
 
 ---
 

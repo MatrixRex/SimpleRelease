@@ -8,7 +8,7 @@
     "README.md"
   ],
   "bin": {
-    "release-wizard": "./bin/release.js"
+    "release-it": "./bin/release.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

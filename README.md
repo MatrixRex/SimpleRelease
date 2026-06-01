@@ -12,6 +12,7 @@
 
 - ✅ Checks for uncommitted changes before doing anything
 - ✅ Detects version mismatch between `package.json` and Git tags and lets you resolve it
+- ✅ Optional build check — run `pnpm build` before releasing to ensure stability
 - ✅ Bumps version — `patch`, `minor`, or `major`
 - ✅ Accepts a custom commit message (or uses a sensible auto-generated one)
 - ✅ Automatically commits, tags, and pushes to `origin`
@@ -85,14 +86,19 @@ Latest Git Tag:          v1.2.3
 
 ? Enter commit message (leave blank for auto: 'patch release vX.X.X'):
 
+? Run build check before releasing? (y/N)
+
 ? Ready to release patch? (Y/n)
+
+Running build...
+✔ Build successful!
 
 Bumping version...
 New Version: v1.2.4
 
 Pushing changes and tags to origin...
 
-✨ Release v1.2.4 successful!
+✨ Release v1.2.4 successful! GitHub Actions check has started.
 ```
 
 ---
@@ -102,8 +108,9 @@ Pushing changes and tags to origin...
 1. **Checks for uncommitted changes** — aborts if the working tree is dirty
 2. **Reads the current version** from `package.json` and the latest Git tag
 3. **Detects mismatches** — if they differ, asks which to use as the base
-4. **Bumps the version** via `pnpm version` (updates `package.json` + creates a Git tag)
-5. **Pushes** the commit and tag to `origin`
+4. **Runs build check (Optional)** — if confirmed, runs `pnpm build` to verify the build is stable before releasing
+5. **Bumps the version** via `pnpm version` (updates `package.json` + creates a Git tag)
+6. **Pushes** the commit and tag to `origin`
 
 ---
 

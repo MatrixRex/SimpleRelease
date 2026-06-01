@@ -103,6 +103,14 @@ async function run() {
     message: `Enter commit message (leave blank for auto: '${releaseType} release vX.X.X'):`
   });
 
+  // 5b. Ask for build check
+  const { shouldBuild } = await enquirer.prompt({
+    type: 'confirm',
+    name: 'shouldBuild',
+    message: 'Run build check before releasing?',
+    initial: false
+  });
+
   // 6. Final Confirmation
   const { confirmed } = await enquirer.prompt({
     type: 'confirm',
@@ -114,6 +122,22 @@ async function run() {
   if (!confirmed) {
     console.log(pc.gray('Release cancelled.'));
     process.exit(0);
+  }
+
+  // 6b. Run build if requested
+  if (shouldBuild) {
+    console.log('\n' + pc.cyan('Running build...'));
+    try {
+      if (pkg.scripts && pkg.scripts.build) {
+        await execa('pnpm', ['run', 'build'], { cwd, stdio: 'inherit' });
+        console.log(pc.green('✔ Build successful!'));
+      } else {
+        console.log(pc.yellow('Warning: No build script found in package.json. Skipping build step.'));
+      }
+    } catch (error) {
+      console.log(pc.red('\n✖ Build failed! Release aborted.'));
+      process.exit(1);
+    }
   }
 
   console.log('\n' + pc.cyan('Bumping version...'));

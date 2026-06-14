@@ -5,10 +5,31 @@ import { join } from 'path';
 import { execa } from 'execa';
 import pc from 'picocolors';
 import enquirer from 'enquirer';
+import { parseCLIArgs, getHelpMessage } from './args.js';
 
 async function run() {
   const cwd = process.cwd();
   const pkgPath = join(cwd, 'package.json');
+
+  const args = parseCLIArgs(process.argv.slice(2));
+
+  // Handle errors or help first
+  if (args.help) {
+    console.log(getHelpMessage());
+    process.exit(0);
+  }
+
+  if (args.error) {
+    console.error(pc.red(`Error: ${args.error}`));
+    console.log('\n' + getHelpMessage());
+    process.exit(1);
+  }
+
+  if (args.invalidType) {
+    console.error(pc.red(`Error: Invalid release type '${args.type}'. Must be one of patch, minor, major.`));
+    console.log('\n' + getHelpMessage());
+    process.exit(1);
+  }
 
   console.log(pc.cyan('--- Release It ---'));
 
@@ -55,16 +76,26 @@ async function run() {
     console.log(pc.yellow('VERSION MISMATCH DETECTED!'));
     console.log(`Package version (v${currentVersion}) does not match Git tag (${latestTag}).`);
     
-    const { syncChoice } = await enquirer.prompt({
-      type: 'select',
-      name: 'syncChoice',
-      message: 'Which version should be used as the base for this release?',
-      choices: [
-        { name: 'pkg', message: `Use Package Version (v${currentVersion})` },
-        { name: 'tag', message: `Use Git Tag Version (${latestTag})` },
-        { name: 'quit', message: 'Quit' }
-      ]
-    });
+    let syncChoice = args.sync;
+
+    if (!syncChoice) {
+      if (args.yes) {
+        console.log(pc.yellow("Warning: Non-interactive run. Defaulting to use package.json version."));
+        syncChoice = 'pkg';
+      } else {
+        const response = await enquirer.prompt({
+          type: 'select',
+          name: 'syncChoice',
+          message: 'Which version should be used as the base for this release?',
+          choices: [
+            { name: 'pkg', message: `Use Package Version (v${currentVersion})` },
+            { name: 'tag', message: `Use Git Tag Version (${latestTag})` },
+            { name: 'quit', message: 'Quit' }
+          ]
+        });
+        syncChoice = response.syncChoice;
+      }
+    }
 
     if (syncChoice === 'tag') {
       console.log(pc.cyan(`Syncing package.json to match Git tag (${latestTag})...`));
@@ -78,46 +109,70 @@ async function run() {
     }
   }
 
-  // 4. Ask for release type
-  const { releaseType } = await enquirer.prompt({
-    type: 'select',
-    name: 'releaseType',
-    message: 'Select release type:',
-    choices: [
-      { name: 'patch', message: 'Patch (0.0.x)' },
-      { name: 'minor', message: 'Minor (0.x.0)' },
-      { name: 'major', message: 'Major (x.0.0)' },
-      { name: 'quit', message: 'Quit' }
-    ]
-  });
+  // 4. Get release type
+  let releaseType = args.type;
+  if (!releaseType) {
+    const response = await enquirer.prompt({
+      type: 'select',
+      name: 'releaseType',
+      message: 'Select release type:',
+      choices: [
+        { name: 'patch', message: 'Patch (0.0.x)' },
+        { name: 'minor', message: 'Minor (0.x.0)' },
+        { name: 'major', message: 'Major (x.0.0)' },
+        { name: 'quit', message: 'Quit' }
+      ]
+    });
+    releaseType = response.releaseType;
+  }
 
   if (releaseType === 'quit') {
     console.log(pc.yellow('Cancelled.'));
     process.exit(0);
   }
 
-  // 5. Ask for custom commit message
-  const { customMsg } = await enquirer.prompt({
-    type: 'input',
-    name: 'customMsg',
-    message: `Enter commit message (leave blank for auto: '${releaseType} release vX.X.X'):`
-  });
+  // 5. Get custom commit message
+  let customMsg = args.message;
+  if (customMsg === null) {
+    if (args.yes) {
+      customMsg = ''; // use auto-generated
+    } else {
+      const response = await enquirer.prompt({
+        type: 'input',
+        name: 'customMsg',
+        message: `Enter commit message (leave blank for auto: '${releaseType} release vX.X.X'):`
+      });
+      customMsg = response.customMsg;
+    }
+  }
 
-  // 5b. Ask for build check
-  const { shouldBuild } = await enquirer.prompt({
-    type: 'confirm',
-    name: 'shouldBuild',
-    message: 'Run build check before releasing?',
-    initial: false
-  });
+  // 5b. Get build check
+  let shouldBuild = args.build;
+  if (shouldBuild === null) {
+    if (args.yes) {
+      shouldBuild = false; // default skip build under non-interactive mode
+    } else {
+      const response = await enquirer.prompt({
+        type: 'confirm',
+        name: 'shouldBuild',
+        message: 'Run build check before releasing?',
+        initial: false
+      });
+      shouldBuild = response.shouldBuild;
+    }
+  }
 
   // 6. Final Confirmation
-  const { confirmed } = await enquirer.prompt({
-    type: 'confirm',
-    name: 'confirmed',
-    message: `Ready to release ${releaseType}?`,
-    initial: true
-  });
+  let confirmed = args.yes;
+  if (!confirmed) {
+    const response = await enquirer.prompt({
+      type: 'confirm',
+      name: 'confirmed',
+      message: `Ready to release ${releaseType}?`,
+      initial: true
+    });
+    confirmed = response.confirmed;
+  }
 
   if (!confirmed) {
     console.log(pc.gray('Release cancelled.'));
@@ -144,12 +199,12 @@ async function run() {
 
   // 7. Run pnpm version
   try {
-    const args = ['version', releaseType];
+    const argsToRun = ['version', releaseType];
     // Always include v%s so the git commit message and tag stay in sync with package.json
     const msgBase = customMsg ? customMsg.trim() : `${releaseType} release`;
-    args.push('-m', `${msgBase} v%s`);
+    argsToRun.push('-m', `${msgBase} v%s`);
 
-    const { stdout: newVersion } = await execa('pnpm', args, { cwd });
+    const { stdout: newVersion } = await execa('pnpm', argsToRun, { cwd });
     console.log(pc.green(`New Version: ${newVersion.trim()}`));
 
     // 8. Push to origin
